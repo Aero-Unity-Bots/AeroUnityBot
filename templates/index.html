@@ -14,8 +14,29 @@
         .sub-navbar a.active { color: #ff2a47; border-bottom: 2px solid #ff2a47; padding-bottom: 2px; }
         
         .container { max-width: 800px; margin: 20px auto; padding: 10px; }
-        video { width: 100%; max-height: 400px; background: #000; outline: none; border-radius: 4px; }
         
+        .video-container { position: relative; width: 100%; background: #000; border-radius: 6px; overflow: hidden; }
+        video { width: 100%; max-height: 400px; display: block; outline: none; transition: transform 0.2s ease; }
+        
+        /* Aspect Ratio Classes */
+        video.ratio-1-1 { object-fit: contain; aspect-ratio: 1 / 1; }
+        video.ratio-4-3 { object-fit: contain; aspect-ratio: 4 / 3; }
+        video.ratio-16-9 { object-fit: contain; aspect-ratio: 16 / 9; }
+        video.ratio-185 { object-fit: contain; aspect-ratio: 1.85 / 1; }
+        video.ratio-21-9 { object-fit: contain; aspect-ratio: 21 / 9; }
+        video.ratio-fill { object-fit: fill; width: 100%; height: 100%; }
+
+        .player-toolbar { display: flex; justify-content: flex-end; background: #111; padding: 8px 15px; gap: 10px; align-items: center; }
+        .tool-btn { background: #222; color: #fff; border: 1px solid #333; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        
+        /* Dropdown menu for ratios */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content { display: none; position: absolute; right: 0; bottom: 35px; background: #161616; min-width: 140px; box-shadow: 0px 8px 16px rgba(0,0,0,0.5); z-index: 10; border: 1px solid #333; border-radius: 4px; text-align: left; }
+        .dropdown-content a { color: #fff; padding: 10px 12px; text-decoration: none; display: block; font-size: 12px; cursor: pointer; }
+        .dropdown-content a:hover { background: #ff2a47; }
+        .dropdown-content a.selected { color: #ff2a47; font-weight: bold; }
+        .dropdown.show .dropdown-content { display: block; }
+
         .file-card { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 15px; margin-top: 15px; text-align: left; }
         .label-red { color: #ff2a47; font-weight: bold; font-size: 13px; }
         .file-name-text { font-size: 14px; color: #fff; margin-top: 5px; margin-bottom: 15px; word-break: break-all; }
@@ -40,19 +61,43 @@
         </div>
     </div>
 
-    <div class="sub-navbar" id="sub-nav">
+    <div class="sub-navbar" id="sub-nav" style="display:none;">
         <a onclick="switchSubTab('welcome')" id="sub-welcome" class="active">WELCOME</a>
         <a onclick="switchSubTab('channels')" id="sub-channels">CHANNELS</a>
         <a onclick="switchSubTab('contact')" id="sub-contact">CONTACT</a>
     </div>
 
-    <!-- HOME TAB (Video & Links) -->
+    <!-- HOME TAB -->
     <div id="tab-home" class="tab-content active">
         <div class="container">
-            <video controls autoplay>
-                <source src="{{ stream_url }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <div class="video-container">
+                <video id="videoPlayer" controls autoplay>
+                    <source src="{{ stream_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="player-toolbar">
+                    <!-- Aspect Ratio Menu -->
+                    <div class="dropdown" id="ratioDropdown">
+                        <button class="tool-btn" onclick="toggleRatioMenu()">📐 Ratio</button>
+                        <div class="dropdown-content">
+                            <a onclick="setRatio('ratio-1-1', this)">1:1 Square</a>
+                            <a onclick="setRatio('ratio-4-3', this)">4:3 Classic</a>
+                            <a onclick="setRatio('ratio-16-9', this)" class="selected">16:9 Wide</a>
+                            <a onclick="setRatio('ratio-185', this)">1.85:1 Cinema</a>
+                            <a onclick="setRatio('ratio-21-9', this)">21:9 Ultrawide</a>
+                            <a onclick="setRatio('ratio-fill', this)">Fill Screen</a>
+                        </div>
+                    </div>
+                    <!-- Playback Speed Menu -->
+                    <select class="tool-btn" id="speedSelect" onchange="changeSpeed(this)">
+                        <option value="0.5">0.5x</option>
+                        <option value="1.0" selected>1.0x Speed</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2.0">2.0x</option>
+                    </select>
+                </div>
+            </div>
 
             <div class="file-card">
                 <div class="label-red">File Name:</div>
@@ -75,7 +120,6 @@
         <p style="max-width: 600px; margin: 20px auto; line-height: 1.6; color: #ccc;">
             This Is A Telegram Bot To Stream Movies And Series Directly On Telegram. You Can Also Download Them If You Want. This Bot Is Developed By <span style="color: #ff2a47;">Aero_Unity</span>
         </p>
-        <p style="color: #aaa; margin-top: 30px;">If You Like This Bot, Then Don't Forget To Share It With Your Friends And Family.</p>
     </div>
 
     <!-- ABOUT / CHANNELS TAB -->
@@ -83,7 +127,6 @@
         <h2 style="color: #ff2a47; font-size: 20px;">JOIN OUR TELEGRAM CHANNELS</h2>
         <div style="margin-top: 30px;">
             <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Aero_Unity (Main Channel)</a>
-            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Developer (Aero_Unity)</a>
         </div>
     </div>
 
@@ -91,11 +134,43 @@
     <div id="tab-contact" class="tab-content">
         <h2 style="color: #ff2a47; font-size: 20px;">Report Bugs And Contact Us On Telegram Below</h2>
         <div style="margin-top: 30px;">
-            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">CONTACT</a>
+            <a href="https://t.me/Coders_Grp" target="_blank" class="about-box">CONTACT</a>
         </div>
     </div>
 
     <script>
+        function toggleRatioMenu() {
+            document.getElementById('ratioDropdown').classList.toggle('show');
+        }
+
+        function setRatio(ratioClass, element) {
+            const video = document.getElementById('videoPlayer');
+            video.className = ''; // remove existing classes
+            video.classList.add(ratioClass);
+            
+            // Highlight selected
+            const items = element.parentElement.getElementsByTagName('a');
+            for(let item of items) item.classList.remove('selected');
+            element.classList.add('selected');
+            toggleRatioMenu();
+        }
+
+        function changeSpeed(select) {
+            document.getElementById('videoPlayer').playbackRate = parseFloat(select.value);
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.tool-btn')) {
+                var dropdowns = document.getElementsByClassName("dropdown");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
         function switchMainTab(tab) {
             document.getElementById('tab-home').classList.remove('active');
             document.getElementById('tab-welcome').classList.remove('active');

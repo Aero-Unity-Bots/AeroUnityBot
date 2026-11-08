@@ -35,8 +35,6 @@
         .dropdown-content a.selected { color: #ff2a47; font-weight: bold; }
         .dropdown.show .dropdown-content { display: block; }
 
-        .audio-warning { font-size: 11px; color: #ff9800; background: #1a1400; padding: 10px; border: 1px solid #332700; border-radius: 4px; margin-top: 10px; text-align: left; line-height: 1.5; }
-
         .file-card { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 15px; margin-top: 15px; text-align: left; }
         .label-red { color: #ff2a47; font-weight: bold; font-size: 13px; }
         .file-name-text { font-size: 14px; color: #fff; margin-top: 5px; margin-bottom: 15px; word-break: break-all; }
@@ -74,10 +72,9 @@
     <div id="tab-home" class="tab-content active">
         <div class="container">
             <div class="video-container">
-                <video id="videoPlayer" controls preload="metadata" playsinline>
+                <video id="videoPlayer" controls autoplay playsinline>
                     <source src="{{ stream_url }}" type="video/mp4">
-                    <source src="{{ stream_url }}" type="video/x-matroska">
-                    Your browser does not support the video tag. Please use VLC Player below.
+                    Your browser does not support the video tag.
                 </video>
                 <div class="player-toolbar">
                     <div class="dropdown" id="ratioDropdown">
@@ -99,11 +96,6 @@
                         <option value="2.0">2.0x</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="audio-warning">
-                ⚠️ <b>MKV Format Notice:</b> Browsers (like Chrome) cannot decode MKV video containers or Dolby/EAC3 audio directly. 
-                <br>👉 For instant playback with all audio tracks and subtitles, please click <b>WATCH IN VLC PLAYER</b> or <b>WATCH IN MX PLAYER</b> below!
             </div>
 
             <div class="file-card">

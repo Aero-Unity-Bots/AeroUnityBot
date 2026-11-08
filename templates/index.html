@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aero_Unity | {{ file_name }}</title>
+    <style>
+        body { background-color: #0b0b0b; color: #fff; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; font-weight: bold; font-size: 14px; border-bottom: 1px solid #222; }
+        .navbar .nav-links { display: flex; gap: 20px; }
+        .navbar a { color: #fff; text-decoration: none; cursor: pointer; }
+        .sub-navbar { display: flex; justify-content: center; gap: 25px; padding: 12px; font-size: 13px; color: #aaa; background: #111; }
+        .sub-navbar a { color: #aaa; text-decoration: none; cursor: pointer; }
+        .sub-navbar a.active { color: #ff2a47; border-bottom: 2px solid #ff2a47; padding-bottom: 2px; }
+        
+        .container { max-width: 800px; margin: 20px auto; padding: 10px; }
+        video { width: 100%; max-height: 400px; background: #000; outline: none; border-radius: 4px; }
+        
+        .file-card { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 15px; margin-top: 15px; text-align: left; }
+        .label-red { color: #ff2a47; font-weight: bold; font-size: 13px; }
+        .file-name-text { font-size: 14px; color: #fff; margin-top: 5px; margin-bottom: 15px; word-break: break-all; }
+        
+        .btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border-radius: 4px; font-weight: bold; text-align: center; text-decoration: none; font-size: 14px; cursor: pointer; border: none; }
+        .btn-download { background-color: #161616; color: #ff2a47; border: 1px solid #333; }
+        .btn-action { background-color: #161616; color: #fff; border: 1px solid #333; }
+        .btn:hover { background-color: #222; }
+
+        .tab-content { display: none; padding: 30px 20px; text-align: center; }
+        .tab-content.active { display: block; }
+        .about-box { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 20px; margin: 10px auto; max-width: 500px; cursor: pointer; color: #fff; font-weight: bold; text-decoration: none; display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div>FILE STREAM</div>
+        <div class="nav-links">
+            <a onclick="switchMainTab('home')">HOME</a>
+            <a onclick="switchMainTab('about')">ABOUT</a>
+        </div>
+    </div>
+
+    <div class="sub-navbar" id="sub-nav">
+        <a onclick="switchSubTab('welcome')" id="sub-welcome" class="active">WELCOME</a>
+        <a onclick="switchSubTab('channels')" id="sub-channels">CHANNELS</a>
+        <a onclick="switchSubTab('contact')" id="sub-contact">CONTACT</a>
+    </div>
+
+    <!-- HOME TAB (Video & Links) -->
+    <div id="tab-home" class="tab-content active">
+        <div class="container">
+            <video controls autoplay>
+                <source src="{{ stream_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+
+            <div class="file-card">
+                <div class="label-red">File Name:</div>
+                <div class="file-name-text">{{ file_name }}</div>
+                
+                <div class="label-red">File Size:</div>
+                <div class="file-name-text" style="margin-bottom: 20px;">{{ file_size }}</div>
+
+                <a href="{{ download_url }}" class="btn btn-download">⬇️ DOWNLOAD VIDEO</a>
+                <a href="javascript:navigator.clipboard.writeText(window.location.href);alert('Link Copied!');" class="btn btn-action">🔗 COPY LINK</a>
+                <a href="vlc://{{ stream_url }}" class="btn btn-action">🟠 WATCH IN VLC PLAYER</a>
+                <a href="intent:{{ stream_url }}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;end" class="btn btn-action">🔵 WATCH IN MX PLAYER</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABOUT / WELCOME TAB -->
+    <div id="tab-welcome" class="tab-content">
+        <h2 style="color: #ff2a47; font-size: 20px;">WELCOME TO OUR FILE STREAM BOT</h2>
+        <p style="max-width: 600px; margin: 20px auto; line-height: 1.6; color: #ccc;">
+            This Is A Telegram Bot To Stream Movies And Series Directly On Telegram. You Can Also Download Them If You Want. This Bot Is Developed By <span style="color: #ff2a47;">Aero_Unity</span>
+        </p>
+        <p style="color: #aaa; margin-top: 30px;">If You Like This Bot, Then Don't Forget To Share It With Your Friends And Family.</p>
+    </div>
+
+    <!-- ABOUT / CHANNELS TAB -->
+    <div id="tab-channels" class="tab-content">
+        <h2 style="color: #ff2a47; font-size: 20px;">JOIN OUR TELEGRAM CHANNELS</h2>
+        <div style="margin-top: 30px;">
+            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Aero_Unity (Main Channel)</a>
+            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Developer (Aero_Unity)</a>
+        </div>
+    </div>
+
+    <!-- ABOUT / CONTACT TAB -->
+    <div id="tab-contact" class="tab-content">
+        <h2 style="color: #ff2a47; font-size: 20px;">Report Bugs And Contact Us On Telegram Below</h2>
+        <div style="margin-top: 30px;">
+            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">CONTACT</a>
+        </div>
+    </div>
+
+    <script>
+        function switchMainTab(tab) {
+            document.getElementById('tab-home').classList.remove('active');
+            document.getElementById('tab-welcome').classList.remove('active');
+            document.getElementById('tab-channels').classList.remove('active');
+            document.getElementById('tab-contact').classList.remove('active');
+            document.getElementById('sub-nav').style.display = 'none';
+
+            if (tab === 'home') {
+                document.getElementById('tab-home').classList.add('active');
+            } else if (tab === 'about') {
+                document.getElementById('sub-nav').style.display = 'flex';
+                document.getElementById('tab-welcome').classList.add('active');
+                setActiveSub('sub-welcome');
+            }
+        }
+
+        function switchSubTab(sub) {
+            document.getElementById('tab-welcome').classList.remove('active');
+            document.getElementById('tab-channels').classList.remove('active');
+            document.getElementById('tab-contact').classList.remove('active');
+            
+            document.getElementById('sub-welcome').classList.remove('active');
+            document.getElementById('sub-channels').classList.remove('active');
+            document.getElementById('sub-contact').classList.remove('active');
+
+            document.getElementById('tab-' + sub).classList.add('active');
+            document.getElementById('sub-' + sub).classList.add('active');
+        }
+
+        function setActiveSub(id) {
+            document.getElementById('sub-welcome').classList.remove('active');
+            document.getElementById('sub-channels').classList.remove('active');
+            document.getElementById('sub-contact').classList.remove('active');
+            document.getElementById(id).classList.add('active');
+        }
+    </script>
+</body>
+</html>

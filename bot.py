@@ -23,6 +23,17 @@ bot = Client(
 
 @bot.on_message(filters.command("start"))
 async def start_handler(client, message: Message):
+    if len(message.command) > 1 and message.command[1].startswith("file_"):
+        token = message.command[1].split("_")[1]
+        file_data = server.FILE_DATABASE.get(token)
+        if file_data and file_data.get("message"):
+            # Forwards the exact original file back to the user
+            await file_data["message"].copy(chat_id=message.chat.id)
+            return
+        else:
+            await message.reply_text("❌ Sorry, this file link has expired or been revoked.")
+            return
+
     await message.reply_text(
         "👋 **Welcome to Aero_Unity File-to-Link Bot!**\n\n"
         "Send me any file, video, or document (up to 4GB), and I will generate instant links!"

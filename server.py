@@ -14,7 +14,6 @@ API_ID = int(os.getenv("API_ID", 0))
 API_HASH = os.getenv("API_HASH", "")
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 
-# In-memory database mapping tokens to file items
 FILE_DATABASE = {}
 
 app_client = Client(
@@ -102,7 +101,6 @@ async def download_file(token: str):
         async for chunk in app_client.stream_media(message):
             yield chunk
 
-    # Forces browser download window/prompt on Chrome
     headers = {
         "Content-Disposition": f"attachment; filename=\"{file_name}\"",
         "Content-Length": str(file_size),

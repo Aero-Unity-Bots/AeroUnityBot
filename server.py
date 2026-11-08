@@ -102,9 +102,11 @@ async def download_file(token: str):
         async for chunk in app_client.stream_media(message):
             yield chunk
 
+    # Forces browser download window/prompt on Chrome
     headers = {
         "Content-Disposition": f"attachment; filename=\"{file_name}\"",
         "Content-Length": str(file_size),
-        "Content-Type": "application/octet-stream"
+        "Content-Type": "application/octet-stream",
+        "X-Content-Type-Options": "nosniff"
     }
     return StreamingResponse(download_generator(), headers=headers)

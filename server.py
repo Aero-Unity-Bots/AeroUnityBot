@@ -1,4 +1,5 @@
 import os
+import subprocess
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
@@ -52,40 +53,75 @@ async def watch_file(request: Request, token: str):
 
 @app.get("/stream/{token}")
 async def stream_video(request: Request, token: str):
+    """
+    Pulls chunks from Telegram via Pyrogram and pipes them 
+    through FFmpeg to transcode on-the-fly into browser-compatible MP4 format.
+    """
     file_data = FILE_DATABASE.get(token)
     if not file_data:
         raise HTTPException(status_code=404, detail="File not found.")
 
     message = file_data["message"]
-    file_size = file_data["file_size"]
-    
-    range_header = request.headers.get("Range")
-    from_bytes, to_bytes = 0, file_size - 1
 
-    if range_header:
-        try:
-            parts = range_header.replace("bytes=", "").split("-")
-            from_bytes = int(parts[0])
-            if len(parts) > 1 and parts[1]:
-                to_bytes = int(parts[1])
-        except ValueError:
-            pass
-
-    chunk_size = 1024 * 1024  # 1MB
-    
-    async def file_generator():
-        current = from_bytes
-        async for chunk in app_client.stream_media(message, offset=current // chunk_size, limit=0):
+    async def telegram_chunk_generator():
+        async for chunk in app_client.stream_media(message):
             yield chunk
 
-    headers = {
-        "Content-Range": f"bytes {from_bytes}-{to_bytes}/{file_size}",
-        "Accept-Ranges": "bytes",
-        "Content-Length": str((to_bytes - from_bytes) + 1),
-        "Content-Type": "video/mp4",
-    }
-    
-    return StreamingResponse(file_generator(), status_code=206, headers=headers)
+    # Start an FFmpeg background process to transcode the incoming binary stream to web MP4
+    # This solves black screens, codec issues, and playback hanging.
+    cmd = [
+        "ffmpeg",
+        "-i", "pipe:0",               # Read input from pipe (Telegram stream)
+        "-c:v", "libx264",            # Transcode video to H.264
+        "-preset", "ultrafast",       # Fast processing preset for cloud hosting
+        "-c:a", "aac",                # Transcode audio to AAC (browser compatible)
+        "-movflags", "frag_keyframe+empty_moov", # Enable fast streaming start
+        "-f", "mp4",                  # Output format
+        "pipe:1"                      # Output to stdout pipe
+    ]
+
+    process = None
+    try:
+        # Pipe input from telegram generator and read transcoded output chunks
+        import asyncio
+        
+        # We use an async generator wrapper around ffmpeg subprocess pipe
+        process = subprocess.Popen(
+            cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL
+        )
+
+        async def feed_ffmpeg():
+            try:
+                async for chunk in telegram_chunk_generator():
+                    process.stdin.write(chunk)
+                    process.stdin.flush()
+            except Exception:
+                pass
+            finally:
+                try:
+                    process.stdin.close()
+                except Exception:
+                    pass
+
+        # Run feed task in background while yielding output chunks
+        asyncio.create_task(feed_ffmpeg())
+
+        def output_generator():
+            while True:
+                data = process.stdout.read(65536)
+                if not data:
+                    break
+                yield data
+
+        return StreamingResponse(output_generator(), media_type="video/mp4")
+
+    except Exception as e:
+        if process:
+            process.terminate()
+        raise HTTPException(status_code=500, detail=f"Streaming error: {str(e)}")
 
 @app.get("/dl/{token}")
 async def download_file(token: str):

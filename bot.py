@@ -27,7 +27,6 @@ async def start_handler(client, message: Message):
         token = message.command[1].split("_")[1]
         file_data = server.FILE_DATABASE.get(token)
         if file_data and file_data.get("message"):
-            # Forwards the exact original file back to the user
             await file_data["message"].copy(chat_id=message.chat.id)
             return
         else:

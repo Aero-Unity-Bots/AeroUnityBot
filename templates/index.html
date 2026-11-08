@@ -18,7 +18,6 @@
         .video-container { position: relative; width: 100%; background: #000; border-radius: 6px; overflow: hidden; }
         video { width: 100%; max-height: 400px; display: block; outline: none; transition: transform 0.2s ease; }
         
-        /* Aspect Ratio Classes */
         video.ratio-1-1 { object-fit: contain; aspect-ratio: 1 / 1; }
         video.ratio-4-3 { object-fit: contain; aspect-ratio: 4 / 3; }
         video.ratio-16-9 { object-fit: contain; aspect-ratio: 16 / 9; }
@@ -29,13 +28,14 @@
         .player-toolbar { display: flex; justify-content: flex-end; background: #111; padding: 8px 15px; gap: 10px; align-items: center; }
         .tool-btn { background: #222; color: #fff; border: 1px solid #333; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
         
-        /* Dropdown menu for ratios */
         .dropdown { position: relative; display: inline-block; }
         .dropdown-content { display: none; position: absolute; right: 0; bottom: 35px; background: #161616; min-width: 140px; box-shadow: 0px 8px 16px rgba(0,0,0,0.5); z-index: 10; border: 1px solid #333; border-radius: 4px; text-align: left; }
         .dropdown-content a { color: #fff; padding: 10px 12px; text-decoration: none; display: block; font-size: 12px; cursor: pointer; }
         .dropdown-content a:hover { background: #ff2a47; }
         .dropdown-content a.selected { color: #ff2a47; font-weight: bold; }
         .dropdown.show .dropdown-content { display: block; }
+
+        .audio-warning { font-size: 11px; color: #ff9800; background: #1a1400; padding: 8px; border: 1px solid #332700; border-radius: 4px; margin-top: 10px; text-align: left; }
 
         .file-card { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 15px; margin-top: 15px; text-align: left; }
         .label-red { color: #ff2a47; font-weight: bold; font-size: 13px; }
@@ -49,12 +49,15 @@
         .tab-content { display: none; padding: 30px 20px; text-align: center; }
         .tab-content.active { display: block; }
         .about-box { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 20px; margin: 10px auto; max-width: 500px; cursor: pointer; color: #fff; font-weight: bold; text-decoration: none; display: block; }
+        
+        .footer { margin: 30px 0 20px 0; font-size: 12px; color: #777; border-top: 1px solid #1c1c1c; padding-top: 15px; }
+        .footer a { color: #ff2a47; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
-        <div>FILE STREAM</div>
+        <div>Aero Unity Stream</div>
         <div class="nav-links">
             <a onclick="switchMainTab('home')">HOME</a>
             <a onclick="switchMainTab('about')">ABOUT</a>
@@ -71,12 +74,11 @@
     <div id="tab-home" class="tab-content active">
         <div class="container">
             <div class="video-container">
-                <video id="videoPlayer" controls autoplay>
+                <video id="videoPlayer" controls preload="auto" playsinline>
                     <source src="{{ stream_url }}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
                 <div class="player-toolbar">
-                    <!-- Aspect Ratio Menu -->
                     <div class="dropdown" id="ratioDropdown">
                         <button class="tool-btn" onclick="toggleRatioMenu()">📐 Ratio</button>
                         <div class="dropdown-content">
@@ -88,7 +90,6 @@
                             <a onclick="setRatio('ratio-fill', this)">Fill Screen</a>
                         </div>
                     </div>
-                    <!-- Playback Speed Menu -->
                     <select class="tool-btn" id="speedSelect" onchange="changeSpeed(this)">
                         <option value="0.5">0.5x</option>
                         <option value="1.0" selected>1.0x Speed</option>
@@ -99,6 +100,10 @@
                 </div>
             </div>
 
+            <div class="audio-warning">
+                ⚠️ Note: If audio/subtitles don't play or show in browser (due to MKV/EAC3 codecs), please use <b>VLC Player</b> or <b>MX Player</b> below for full multi-audio & subtitle support.
+            </div>
+
             <div class="file-card">
                 <div class="label-red">File Name:</div>
                 <div class="file-name-text">{{ file_name }}</div>
@@ -106,7 +111,7 @@
                 <div class="label-red">File Size:</div>
                 <div class="file-name-text" style="margin-bottom: 20px;">{{ file_size }}</div>
 
-                <a href="{{ download_url }}" class="btn btn-download">⬇️ DOWNLOAD VIDEO</a>
+                <a href="{{ download_url }}" download class="btn btn-download">⬇️ DOWNLOAD VIDEO</a>
                 <a href="javascript:navigator.clipboard.writeText(window.location.href);alert('Link Copied!');" class="btn btn-action">🔗 COPY LINK</a>
                 <a href="vlc://{{ stream_url }}" class="btn btn-action">🟠 WATCH IN VLC PLAYER</a>
                 <a href="intent:{{ stream_url }}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;end" class="btn btn-action">🔵 WATCH IN MX PLAYER</a>
@@ -126,7 +131,7 @@
     <div id="tab-channels" class="tab-content">
         <h2 style="color: #ff2a47; font-size: 20px;">JOIN OUR TELEGRAM CHANNELS</h2>
         <div style="margin-top: 30px;">
-            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Aero_Unity (Main Channel)</a>
+            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Aero_Unity</a>
         </div>
     </div>
 
@@ -138,6 +143,10 @@
         </div>
     </div>
 
+    <div class="footer">
+        © 2026 <a href="https://t.me/Aero_Unity" target="_blank">Aero Unity</a> All rights are reserved
+    </div>
+
     <script>
         function toggleRatioMenu() {
             document.getElementById('ratioDropdown').classList.toggle('show');
@@ -145,10 +154,9 @@
 
         function setRatio(ratioClass, element) {
             const video = document.getElementById('videoPlayer');
-            video.className = ''; // remove existing classes
+            video.className = '';
             video.classList.add(ratioClass);
             
-            // Highlight selected
             const items = element.parentElement.getElementsByTagName('a');
             for(let item of items) item.classList.remove('selected');
             element.classList.add('selected');

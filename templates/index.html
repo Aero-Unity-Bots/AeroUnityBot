@@ -35,7 +35,7 @@
         .dropdown-content a.selected { color: #ff2a47; font-weight: bold; }
         .dropdown.show .dropdown-content { display: block; }
 
-        .audio-warning { font-size: 11px; color: #ff9800; background: #1a1400; padding: 8px; border: 1px solid #332700; border-radius: 4px; margin-top: 10px; text-align: left; }
+        .audio-warning { font-size: 11px; color: #ff9800; background: #1a1400; padding: 10px; border: 1px solid #332700; border-radius: 4px; margin-top: 10px; text-align: left; line-height: 1.5; }
 
         .file-card { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 15px; margin-top: 15px; text-align: left; }
         .label-red { color: #ff2a47; font-weight: bold; font-size: 13px; }
@@ -74,9 +74,10 @@
     <div id="tab-home" class="tab-content active">
         <div class="container">
             <div class="video-container">
-                <video id="videoPlayer" controls preload="auto" playsinline>
+                <video id="videoPlayer" controls preload="metadata" playsinline>
                     <source src="{{ stream_url }}" type="video/mp4">
-                    Your browser does not support the video tag.
+                    <source src="{{ stream_url }}" type="video/x-matroska">
+                    Your browser does not support the video tag. Please use VLC Player below.
                 </video>
                 <div class="player-toolbar">
                     <div class="dropdown" id="ratioDropdown">
@@ -101,7 +102,8 @@
             </div>
 
             <div class="audio-warning">
-                ⚠️ Note: If audio/subtitles don't play or show in browser (due to MKV/EAC3 codecs), please use <b>VLC Player</b> or <b>MX Player</b> below for full multi-audio & subtitle support.
+                ⚠️ <b>MKV Format Notice:</b> Browsers (like Chrome) cannot decode MKV video containers or Dolby/EAC3 audio directly. 
+                <br>👉 For instant playback with all audio tracks and subtitles, please click <b>WATCH IN VLC PLAYER</b> or <b>WATCH IN MX PLAYER</b> below!
             </div>
 
             <div class="file-card">
@@ -131,7 +133,7 @@
     <div id="tab-channels" class="tab-content">
         <h2 style="color: #ff2a47; font-size: 20px;">JOIN OUR TELEGRAM CHANNELS</h2>
         <div style="margin-top: 30px;">
-            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Aero_Unity</a>
+            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Aero_Unity (Main Channel)</a>
         </div>
     </div>
 
@@ -139,7 +141,7 @@
     <div id="tab-contact" class="tab-content">
         <h2 style="color: #ff2a47; font-size: 20px;">Report Bugs And Contact Us On Telegram Below</h2>
         <div style="margin-top: 30px;">
-            <a href="https://t.me/Coders_Grp" target="_blank" class="about-box">CONTACT</a>
+            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">CONTACT</a>
         </div>
     </div>
 

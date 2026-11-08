@@ -1,6 +1,8 @@
 import os
+import subprocess
+import asyncio
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from pyrogram import Client
 from dotenv import load_dotenv
@@ -51,25 +53,74 @@ async def watch_file(request: Request, token: str):
     })
 
 @app.get("/stream/{token}")
-async def stream_video(token: str):
+async def stream_video(request: Request, token: str):
     """
-    Fetches the direct Telegram file URL and redirects the browser 
-    to Telegram's ultra-fast CDN servers for instant playback and seeking.
+    Streams file bytes from Telegram and pipes them through FFmpeg 
+    to transcode MKV/Audio on-the-fly into browser-ready MP4/H.264/AAC.
     """
     file_data = FILE_DATABASE.get(token)
     if not file_data:
         raise HTTPException(status_code=404, detail="File not found.")
 
     message = file_data["message"]
-    media = message.document or message.video or message.audio
-    
-    try:
-        # Get direct file access link from Telegram servers
-        file_info = await app_client.get_file(media.file_id)
-        direct_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_info.file_path}"
-        return RedirectResponse(url=direct_url, status_code=303)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not fetch stream: {str(e)}")
+
+    async def telegram_generator():
+        try:
+            async for chunk in app_client.stream_media(message):
+                yield chunk
+        except Exception:
+            pass
+
+    # FFmpeg command to convert any incoming MKV/Audio format into browser-compatible MP4 streaming fragments
+    cmd = [
+        "ffmpeg",
+        "-i", "pipe:0",
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-tune", "zerolatency",
+        "-c:a", "aac",
+        "-b:a", "128k",
+        "-movflags", "frag_keyframe+empty_moov+faststart",
+        "-f", "mp4",
+        "pipe:1"
+    ]
+
+    process = subprocess.Popen(
+        cmd,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL
+    )
+
+    async def feed_ffmpeg():
+        try:
+            async for chunk in telegram_generator():
+                process.stdin.write(chunk)
+                process.stdin.flush()
+        except Exception:
+            pass
+        finally:
+            try:
+                process.stdin.close()
+            except Exception:
+                pass
+
+    asyncio.create_task(feed_ffmpeg())
+
+    def response_generator():
+        try:
+            while True:
+                data = process.stdout.read(32768)
+                if not data:
+                    break
+                yield data
+        except Exception:
+            pass
+        finally:
+            if process.poll() is None:
+                process.terminate()
+
+    return StreamingResponse(response_generator(), media_type="video/mp4")
 
 @app.get("/dl/{token}")
 async def download_file(token: str):

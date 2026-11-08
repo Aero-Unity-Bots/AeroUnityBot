@@ -6,208 +6,105 @@
     <title>Aero_Unity | {{ file_name }}</title>
     <style>
         body { background-color: #0b0b0b; color: #fff; font-family: sans-serif; margin: 0; padding: 0; text-align: center; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; font-weight: bold; font-size: 14px; border-bottom: 1px solid #222; }
-        .navbar .nav-links { display: flex; gap: 20px; }
-        .navbar a { color: #fff; text-decoration: none; cursor: pointer; }
-        .sub-navbar { display: flex; justify-content: center; gap: 25px; padding: 12px; font-size: 13px; color: #aaa; background: #111; }
-        .sub-navbar a { color: #aaa; text-decoration: none; cursor: pointer; }
-        .sub-navbar a.active { color: #ff2a47; border-bottom: 2px solid #ff2a47; padding-bottom: 2px; }
+        .container { max-width: 600px; margin: 10px auto; padding: 15px; }
         
-        .container { max-width: 800px; margin: 20px auto; padding: 10px; }
+        .video-container { position: relative; width: 100%; background: #000; border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
+        video { width: 100%; max-height: 350px; display: block; outline: none; }
         
-        .video-container { position: relative; width: 100%; background: #000; border-radius: 6px; overflow: hidden; }
-        video { width: 100%; max-height: 400px; display: block; outline: none; transition: transform 0.2s ease; }
+        .badge { display: inline-block; background: #162032; color: #3b82f6; font-size: 11px; font-weight: bold; padding: 5px 12px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #1e3a8a; text-align: left; }
         
-        video.ratio-1-1 { object-fit: contain; aspect-ratio: 1 / 1; }
-        video.ratio-4-3 { object-fit: contain; aspect-ratio: 4 / 3; }
-        video.ratio-16-9 { object-fit: contain; aspect-ratio: 16 / 9; }
-        video.ratio-185 { object-fit: contain; aspect-ratio: 1.85 / 1; }
-        video.ratio-21-9 { object-fit: contain; aspect-ratio: 21 / 9; }
-        video.ratio-fill { object-fit: fill; width: 100%; height: 100%; }
+        .file-title { font-size: 15px; font-weight: bold; word-break: break-all; margin-bottom: 15px; text-align: left; line-height: 1.4; padding: 0 5px; }
+        
+        .action-row { display: flex; gap: 10px; margin-bottom: 25px; }
+        .action-btn { flex: 1; background: #141414; color: #fff; border: 1px solid #2a2a2a; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 13px; text-decoration: none; text-align: center; cursor: pointer; }
+        .action-btn:hover { background: #222; }
 
-        .player-toolbar { display: flex; justify-content: flex-end; background: #111; padding: 8px 15px; gap: 10px; align-items: center; }
-        .tool-btn { background: #222; color: #fff; border: 1px solid #333; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
-        
-        .dropdown { position: relative; display: inline-block; }
-        .dropdown-content { display: none; position: absolute; right: 0; bottom: 35px; background: #161616; min-width: 140px; box-shadow: 0px 8px 16px rgba(0,0,0,0.5); z-index: 10; border: 1px solid #333; border-radius: 4px; text-align: left; }
-        .dropdown-content a { color: #fff; padding: 10px 12px; text-decoration: none; display: block; font-size: 12px; cursor: pointer; }
-        .dropdown-content a:hover { background: #ff2a47; }
-        .dropdown-content a.selected { color: #ff2a47; font-weight: bold; }
-        .dropdown.show .dropdown-content { display: block; }
+        .section-title { font-size: 11px; color: #777; letter-spacing: 1px; text-align: left; margin: 25px 0 10px 5px; text-transform: uppercase; border-bottom: 1px solid #1a1a1a; padding-bottom: 5px; }
 
-        .file-card { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 15px; margin-top: 15px; text-align: left; }
-        .label-red { color: #ff2a47; font-weight: bold; font-size: 13px; }
-        .file-name-text { font-size: 14px; color: #fff; margin-top: 5px; margin-bottom: 15px; word-break: break-all; }
-        
-        .btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border-radius: 4px; font-weight: bold; text-align: center; text-decoration: none; font-size: 14px; cursor: pointer; border: none; }
-        .btn-download { background-color: #161616; color: #ff2a47; border: 1px solid #333; }
-        .btn-action { background-color: #161616; color: #fff; border: 1px solid #333; }
-        .btn:hover { background-color: #222; }
+        .track-card { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+        .track-info .track-name { font-size: 13px; font-weight: bold; color: #fff; }
+        .track-info .track-lang { font-size: 11px; color: #777; margin-top: 2px; }
+        .extract-btn { background: #1e3a8a; color: #93c5fd; border: none; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        .extract-btn:hover { background: #2563eb; color: #fff; }
 
-        .tab-content { display: none; padding: 30px 20px; text-align: center; }
-        .tab-content.active { display: block; }
-        .about-box { background: #141414; border: 1px solid #222; border-radius: 6px; padding: 20px; margin: 10px auto; max-width: 500px; cursor: pointer; color: #fff; font-weight: bold; text-decoration: none; display: block; }
-        
+        .playback-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .playback-btn { background: #141414; color: #fff; border: 1px solid #2a2a2a; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: bold; text-decoration: center; cursor: pointer; }
+        .playback-btn:hover { background: #222; }
+
+        .cloud-box { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 15px; text-align: left; font-size: 12px; color: #888; line-height: 1.5; margin-bottom: 20px; }
+
         .footer { margin: 30px 0 20px 0; font-size: 12px; color: #777; border-top: 1px solid #1c1c1c; padding-top: 15px; }
         .footer a { color: #ff2a47; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <div>Aero Unity Stream</div>
-        <div class="nav-links">
-            <a onclick="switchMainTab('home')">HOME</a>
-            <a onclick="switchMainTab('about')">ABOUT</a>
+    <div class="container">
+        <!-- Video Player -->
+        <div class="video-container">
+            <video id="videoPlayer" controls preload="metadata" playsinline>
+                <source src="{{ stream_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
-    </div>
 
-    <div class="sub-navbar" id="sub-nav" style="display:none;">
-        <a onclick="switchSubTab('welcome')" id="sub-welcome" class="active">WELCOME</a>
-        <a onclick="switchSubTab('channels')" id="sub-channels">CHANNELS</a>
-        <a onclick="switchSubTab('contact')" id="sub-contact">CONTACT</a>
-    </div>
+        <div style="text-align: left;">
+            <div class="badge">Professional Stream Engine 3.0</div>
+        </div>
 
-    <!-- HOME TAB -->
-    <div id="tab-home" class="tab-content active">
-        <div class="container">
-            <div class="video-container">
-                <video id="videoPlayer" controls autoplay playsinline>
-                    <source src="{{ stream_url }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                <div class="player-toolbar">
-                    <div class="dropdown" id="ratioDropdown">
-                        <button class="tool-btn" onclick="toggleRatioMenu()">📐 Ratio</button>
-                        <div class="dropdown-content">
-                            <a onclick="setRatio('ratio-1-1', this)">1:1 Square</a>
-                            <a onclick="setRatio('ratio-4-3', this)">4:3 Classic</a>
-                            <a onclick="setRatio('ratio-16-9', this)" class="selected">16:9 Wide</a>
-                            <a onclick="setRatio('ratio-185', this)">1.85:1 Cinema</a>
-                            <a onclick="setRatio('ratio-21-9', this)">21:9 Ultrawide</a>
-                            <a onclick="setRatio('ratio-fill', this)">Fill Screen</a>
-                        </div>
-                    </div>
-                    <select class="tool-btn" id="speedSelect" onchange="changeSpeed(this)">
-                        <option value="0.5">0.5x</option>
-                        <option value="1.0" selected>1.0x Speed</option>
-                        <option value="1.25">1.25x</option>
-                        <option value="1.5">1.5x</option>
-                        <option value="2.0">2.0x</option>
-                    </select>
-                </div>
+        <div class="file-title">{{ file_name }}</div>
+
+        <div class="action-row">
+            <a href="{{ download_url }}" download class="action-btn">Download Full Video</a>
+            <a href="https://t.me/Aero_Unity" target="_blank" class="action-btn">Support Group</a>
+        </div>
+
+        <!-- Track Extraction Center -->
+        <div class="section-title">Track Extraction Center</div>
+
+        <div class="track-card">
+            <div class="track-info">
+                <div class="track-name">Audio Track 1</div>
+                <div class="track-lang">AAC - [Original Audio / Multi-Language]</div>
             </div>
+            <a href="{{ download_url }}" class="extract-btn">Extract MP3</a>
+        </div>
 
-            <div class="file-card">
-                <div class="label-red">File Name:</div>
-                <div class="file-name-text">{{ file_name }}</div>
-                
-                <div class="label-red">File Size:</div>
-                <div class="file-name-text" style="margin-bottom: 20px;">{{ file_size }}</div>
-
-                <a href="{{ download_url }}" download class="btn btn-download">⬇️ DOWNLOAD VIDEO</a>
-                <a href="javascript:navigator.clipboard.writeText(window.location.href);alert('Link Copied!');" class="btn btn-action">🔗 COPY LINK</a>
-                <a href="vlc://{{ stream_url }}" class="btn btn-action">🟠 WATCH IN VLC PLAYER</a>
-                <a href="intent:{{ stream_url }}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;end" class="btn btn-action">🔵 WATCH IN MX PLAYER</a>
+        <div class="track-card">
+            <div class="track-info">
+                <div class="track-name">Subtitle 1</div>
+                <div class="track-lang">English (eng)</div>
             </div>
+            <a href="{{ download_url }}" class="extract-btn">Extract ASS</a>
+        </div>
+
+        <div class="track-card">
+            <div class="track-info">
+                <div class="track-name">Subtitle 2</div>
+                <div class="track-lang">Korean (kor)</div>
+            </div>
+            <a href="{{ download_url }}" class="extract-btn">Extract ASS</a>
+        </div>
+
+        <!-- External Playback -->
+        <div class="section-title">External Playback</div>
+        <div class="playback-grid">
+            <a href="vlc://{{ stream_url }}" class="playback-btn" style="text-decoration:none; color:#fff; display:block; text-align:center;">VLC Media</a>
+            <a href="intent:{{ stream_url }}#Intent;package=com.mxtech.videoplayer.ad;type=video/*;end" class="playback-btn" style="text-decoration:none; color:#fff; display:block; text-align:center;">MX Player</a>
+            <a href="nplayer://{{ stream_url }}" class="playback-btn" style="text-decoration:none; color:#fff; display:block; text-align:center;">nPlayer</a>
+            <a href="{{ stream_url }}" class="playback-btn" style="text-decoration:none; color:#fff; display:block; text-align:center;" target="_blank">Direct</a>
+        </div>
+
+        <!-- Cloud Memory -->
+        <div class="section-title">Cloud Memory</div>
+        <div class="cloud-box">
+            Your language preferences are stored in your browser. Future videos will automatically sync with your preferred audio/subtitles.
+        </div>
+
+        <div class="footer">
+            © 2026 <a href="https://t.me/Aero_Unity" target="_blank">Aero Unity</a> All rights are reserved
         </div>
     </div>
 
-    <!-- ABOUT / WELCOME TAB -->
-    <div id="tab-welcome" class="tab-content">
-        <h2 style="color: #ff2a47; font-size: 20px;">WELCOME TO OUR FILE STREAM BOT</h2>
-        <p style="max-width: 600px; margin: 20px auto; line-height: 1.6; color: #ccc;">
-            This Is A Telegram Bot To Stream Movies And Series Directly On Telegram. You Can Also Download Them If You Want. This Bot Is Developed By <span style="color: #ff2a47;">Aero_Unity</span>
-        </p>
-    </div>
-
-    <!-- ABOUT / CHANNELS TAB -->
-    <div id="tab-channels" class="tab-content">
-        <h2 style="color: #ff2a47; font-size: 20px;">JOIN OUR TELEGRAM CHANNELS</h2>
-        <div style="margin-top: 30px;">
-            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">Aero_Unity (Main Channel)</a>
-        </div>
-    </div>
-
-    <!-- ABOUT / CONTACT TAB -->
-    <div id="tab-contact" class="tab-content">
-        <h2 style="color: #ff2a47; font-size: 20px;">Report Bugs And Contact Us On Telegram Below</h2>
-        <div style="margin-top: 30px;">
-            <a href="https://t.me/Aero_Unity" target="_blank" class="about-box">CONTACT</a>
-        </div>
-    </div>
-
-    <div class="footer">
-        © 2026 <a href="https://t.me/Aero_Unity" target="_blank">Aero Unity</a> All rights are reserved
-    </div>
-
-    <script>
-        function toggleRatioMenu() {
-            document.getElementById('ratioDropdown').classList.toggle('show');
-        }
-
-        function setRatio(ratioClass, element) {
-            const video = document.getElementById('videoPlayer');
-            video.className = '';
-            video.classList.add(ratioClass);
-            
-            const items = element.parentElement.getElementsByTagName('a');
-            for(let item of items) item.classList.remove('selected');
-            element.classList.add('selected');
-            toggleRatioMenu();
-        }
-
-        function changeSpeed(select) {
-            document.getElementById('videoPlayer').playbackRate = parseFloat(select.value);
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.tool-btn')) {
-                var dropdowns = document.getElementsByClassName("dropdown");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
-
-        function switchMainTab(tab) {
-            document.getElementById('tab-home').classList.remove('active');
-            document.getElementById('tab-welcome').classList.remove('active');
-            document.getElementById('tab-channels').classList.remove('active');
-            document.getElementById('tab-contact').classList.remove('active');
-            document.getElementById('sub-nav').style.display = 'none';
-
-            if (tab === 'home') {
-                document.getElementById('tab-home').classList.add('active');
-            } else if (tab === 'about') {
-                document.getElementById('sub-nav').style.display = 'flex';
-                document.getElementById('tab-welcome').classList.add('active');
-                setActiveSub('sub-welcome');
-            }
-        }
-
-        function switchSubTab(sub) {
-            document.getElementById('tab-welcome').classList.remove('active');
-            document.getElementById('tab-channels').classList.remove('active');
-            document.getElementById('tab-contact').classList.remove('active');
-            
-            document.getElementById('sub-welcome').classList.remove('active');
-            document.getElementById('sub-channels').classList.remove('active');
-            document.getElementById('sub-contact').classList.remove('active');
-
-            document.getElementById('tab-' + sub).classList.add('active');
-            document.getElementById('sub-' + sub).classList.add('active');
-        }
-
-        function setActiveSub(id) {
-            document.getElementById('sub-welcome').classList.remove('active');
-            document.getElementById('sub-channels').classList.remove('active');
-            document.getElementById('sub-contact').classList.remove('active');
-            document.getElementById(id).classList.add('active');
-        }
-    </script>
 </body>
 </html>
